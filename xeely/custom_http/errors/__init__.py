@@ -1,2 +1,4 @@
 from .client_status import ClientStatusException
 from .client_timeout import ClientTimeoutException
+from .missing_field import HTTPFieldMissingException
+from .request_parsing import HTTPRequestParsingException
