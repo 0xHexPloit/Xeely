@@ -23,8 +23,8 @@ def test_get_text_elements():
     text_elements = xml.get_text_elements()
 
     assert len(text_elements) == 2
-    assert text_elements[0].name == "prenom"
-    assert text_elements[1].name == "nom"
+    assert text_elements[0].get_name() == "prenom"
+    assert text_elements[1].get_name() == "nom"
 
 
 def test_get_text_element_value():
@@ -75,7 +75,7 @@ def test_serialization():
 def test_serialization_with_doctype():
     xml = XML.parse_string(xml_content)
 
-    doctype = XMLDoctype(root_name="root", entities=[])
+    doctype = XMLDoctype("root", [])
     xml.set_doctype(doctype)
 
     xml_str = xml.to_xml()

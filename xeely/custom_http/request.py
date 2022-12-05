@@ -10,24 +10,32 @@ from xeely.custom_http.methods import HTTPMethods
 Headers = NewType("Headers", Dict[str, str])
 
 
-@dataclass(frozen=True)
+@dataclass
 class HTTPRequest:
-    method: HTTPMethods
-    path: str
-    headers: Headers
-    body: str
-    protocol: str = "HTTP"
+    _method: HTTPMethods
+    _path: str
+    _headers: Headers
+    _body: str
+    _protocol: str = "HTTP"
+    _port: int = 8000
 
     def get_url(self) -> str:
-        url = f"{self.protocol.lower()}://"
-        host = self.headers.get("Host")
+        url = f"{self._protocol.lower()}://"
+        host = self._headers.get("Host")
 
         if host is None:
             raise HTTPFieldMissingException("Host")
         url += str(host).strip()
-        url += self.path
+
+        if ":" not in host:
+            url += f":{self._port}"
+
+        url += self._path
 
         return url
+
+    def get_body(self) -> str:
+        return self._body
 
     @staticmethod
     def parse_request(raw_data: str) -> "HTTPRequest":
@@ -73,4 +81,4 @@ class HTTPRequest:
             }
         )
 
-        return HTTPRequest(method=method, path=path, headers=headers, body=body)
+        return HTTPRequest(method, path, headers, body)

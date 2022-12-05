@@ -77,7 +77,7 @@ class XML:
     def get_text_elements(self) -> List[XMLTextElement]:
         output: List[XMLTextElement] = []
         self._get_text_elements_value_rec(self._root_node, output)
-        return [item for item in output if len(item.value.strip("\n ")) != 0]
+        return [item for item in output if len(item.get_value().strip("\n ")) != 0]
 
     def to_xml(self) -> str:
         output = f"{str(self._root_node.toxml()).replace('amp;', '')}"

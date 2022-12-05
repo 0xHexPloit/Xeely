@@ -1,24 +1,24 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass
 class XMLEntity:
-    name: str
-    value: str
-    is_external: bool = False
-    is_parameter: bool = False
+    _name: str
+    _value: str
+    _is_external: bool = False
+    _is_parameter: bool = False
 
     def to_xml(self) -> str:
         output = "<!ENTITY"
 
-        if self.is_parameter:
+        if self._is_parameter:
             output += " %"
 
-        output += f" {self.name}"
+        output += f" {self._name}"
 
-        if self.is_external:
+        if self._is_external:
             output += " SYSTEM"
 
-        output += f' "{self.value}">'
+        output += f' "{self._value}">'
 
         return output

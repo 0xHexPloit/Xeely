@@ -1,7 +1,13 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass
 class XMLTextElement:
-    name: str
-    value: str
+    _name: str
+    _value: str
+
+    def get_name(self) -> str:
+        return self._name
+
+    def get_value(self) -> str:
+        return self._value

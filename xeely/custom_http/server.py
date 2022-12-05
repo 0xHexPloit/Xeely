@@ -1,32 +1,33 @@
 import socket
 import threading
 from contextlib import contextmanager
+from dataclasses import dataclass
+from functools import partial
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 from typing import List
 from typing import Optional
 
 from xeely import console
+from xeely import RESOURCES_PATH
 
 
+@dataclass
 class LogsManager:
-    instance: Optional["LogsManager"] = None
-    logs: List[str]
-
-    def __init__(self):
-        self.logs = []
+    _logs: List[str]
+    _instance: Optional["LogsManager"] = None
 
     def add_log(self, log: str):
-        self.logs.append(log)
+        self._logs.append(log)
 
     def get_latest_log(self) -> Optional[str]:
-        return None if len(self.logs) == 0 else self.logs[-1]
+        return None if len(self._logs) == 0 else self._logs[-1]
 
     @staticmethod
     def get_instance() -> "LogsManager":
-        if LogsManager.instance is None:
-            LogsManager.instance = LogsManager()
-        return LogsManager.instance
+        if LogsManager._instance is None:
+            LogsManager._instance = LogsManager([])
+        return LogsManager._instance
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
@@ -48,9 +49,13 @@ def serve_forever(httpd: HTTPServer):
 
 @contextmanager
 def run_http_server(lhost: str, lport: int):
-    httpd = HTTPServer((lhost, lport), RequestHandler, False)
+    constructor_handler = partial(RequestHandler, directory=RESOURCES_PATH)
+    httpd = HTTPServer((lhost, lport), constructor_handler, False)
+    error_detected = False
     try:
         httpd.server_bind()
+        print(httpd.server_port)
+
         httpd.server_activate()
         console.print_info(f"Running HTTP server on port: {lport}")
 
@@ -60,5 +65,26 @@ def run_http_server(lhost: str, lport: int):
         thread.start()
 
         yield
+    except OSError:
+        console.print_error(f"Cannot bind HTTP Server on port {lport}")
+        error_detected = True
     finally:
-        httpd.shutdown()
+        if error_detected:
+            exit(1)
+        else:
+            httpd.shutdown()
+
+
+@dataclass
+class HTTPServerParams:
+    _lhost: str
+    _lport: int
+
+    def get_host(self) -> str:
+        return self._lhost
+
+    def get_port(self) -> int:
+        return self._lport
+
+    def get_base_url(self) -> str:
+        return f"http://{self._lhost}:{self._lport}"

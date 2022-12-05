@@ -6,7 +6,7 @@ console = Console()
 
 def print_message(message: str, *, message_type: str, message_color: str, bold: bool = False):
     console.print(
-        f"[[{message_color}]{message_type}[/]]"
+        f"[[{message_color}]{message_type}[/]] "
         + f"{'[bold]' if bold else ''}{message} {'[/]' if bold else ''}"
     )
 
