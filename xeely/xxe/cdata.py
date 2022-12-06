@@ -10,7 +10,6 @@ from xeely.custom_xml import XMLEntity
 CDATA_FILE_PATH = RESOURCES_PATH / "cdata.dtd"
 
 
-CDATA_JOINED_ENTITY_NAME = "all"
 CDATA_EXPLOIT_ENTITY_NAME = "joined"
 
 
@@ -24,6 +23,14 @@ def get_cdata_entities(file_entity_value) -> List[XMLEntity]:
         XMLEntity(_name="file", _value=file_entity_value, _is_external=True, _is_parameter=True),
         XMLEntity(_name="end", _value="]]>", _is_parameter=True),
     ]
+
+
+def get_cdata_joined_entity(is_parameter: bool) -> XMLEntity:
+    return XMLEntity(
+        _name=CDATA_EXPLOIT_ENTITY_NAME,
+        _value="%begin;%file;%end;",
+        _is_parameter=is_parameter,
+    )
 
 
 def get_cdata_doctype_entities(
@@ -43,14 +50,8 @@ def get_cdata_doctype_entities(
     return entities
 
 
-def create_cdata_dtd_file(is_parameter_entity: bool = False):
-    entities = [
-        XMLEntity(
-            _name=CDATA_EXPLOIT_ENTITY_NAME,
-            _value="%begin;%file;%end;",
-            _is_parameter=is_parameter_entity,
-        )
-    ]
+def create_cdata_dtd_file():
+    entities = [get_cdata_joined_entity(False)]
     write_doctype_content_to_disk(CDATA_FILE_PATH, entities)
 
 

