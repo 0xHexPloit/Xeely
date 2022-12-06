@@ -1,1 +1,3 @@
+from .invalid_option import InvalidOptionException
+from .no_vulnerable_element_found import NoVulnerableElementFound
 from .reverse_connection_params_not_specified import ReverseConnectionParamsNotSpecified

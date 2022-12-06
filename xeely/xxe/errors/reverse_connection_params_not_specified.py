@@ -1,5 +1,6 @@
-class ReverseConnectionParamsNotSpecified(Exception):
+from .invalid_option import InvalidOptionException
+
+
+class ReverseConnectionParamsNotSpecified(InvalidOptionException):
     def __init__(self):
-        super().__init__(
-            "Cannot run the attack as reverse connection parameters are not specified!"
-        )
+        super().__init__("lhost")

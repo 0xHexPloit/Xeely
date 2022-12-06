@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Sequence
 
 from xeely.custom_xml.entity import XMLEntity
 
@@ -7,7 +7,7 @@ from xeely.custom_xml.entity import XMLEntity
 @dataclass
 class XMLDoctype:
     _root_name: str
-    _entities: List[XMLEntity | str]
+    _entities: Sequence[XMLEntity | str]
 
     def to_xml(self) -> str:
         output = f"<!DOCTYPE {self._root_name} [\n"

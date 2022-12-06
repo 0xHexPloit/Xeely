@@ -14,8 +14,8 @@ Sec-GPC: 1
 
 <?xml version="1.0" encoding="UTF-8"?>
 <contact>
-<prenom>Hugo</prenom>
-<nom>PEYRON</nom>
-<email>hupeyron@proton.pro</email>
+<prenom>Jean</prenom>
+<nom>PERRI</nom>
+<email>jean@proton.pro</email>
 
 </contact>

