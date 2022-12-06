@@ -118,6 +118,6 @@ class ErrorBasedAttack(BaseXXEAttack):
             response = HTTPClient.send_post_request(self.get_target_url(), self.get_xml().to_xml())
             delete_error_dtd_file()
 
-            body_splitted = response.body.split(SEPARATOR)
-            data = "" if len(body_splitted) != 3 else body_splitted[1]
+            body_split = response.body.split(SEPARATOR)
+            data = "" if len(body_split) != 3 else body_split[1]
             return data
