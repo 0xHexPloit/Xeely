@@ -9,14 +9,14 @@ def test_basic_serialization():
 
 
 def test_serialization_with_parameter_entity():
-    entity = XMLEntity("entity", "test", _is_parameter=True)
+    entity = XMLEntity("entity", "test", is_parameter=True)
     entity_str = entity.to_xml()
 
     assert entity_str == '<!ENTITY % entity "test">'
 
 
 def test_serialization_with_external_entity():
-    entity = XMLEntity("entity", "test", _is_external=True)
+    entity = XMLEntity("entity", "test", is_external=True)
     entity_str = entity.to_xml()
 
     assert entity_str == '<!ENTITY entity SYSTEM "test">'

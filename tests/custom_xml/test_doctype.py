@@ -6,7 +6,7 @@ def test_empty_doctype():
     doctype = XMLDoctype("root", [])
     doctype_str = doctype.to_xml()
 
-    assert doctype_str == "<!DOCTYPE root [\n]>\n"
+    assert doctype_str == "<!DOCTYPE root [\n]>"
 
 
 def test_doctype_with_entities():
@@ -15,5 +15,5 @@ def test_doctype_with_entities():
     doctype = XMLDoctype("root", entities)
     doctype_str = doctype.to_xml()
 
-    expected_str = f"<!DOCTYPE root [\n {entity.to_xml()}\n {entities[1]}\n]>\n"
+    expected_str = f"<!DOCTYPE root [\n {entity.to_xml()}\n {entities[1]}\n]>"
     assert doctype_str == expected_str

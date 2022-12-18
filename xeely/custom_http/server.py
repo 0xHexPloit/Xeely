@@ -77,8 +77,9 @@ def run_http_server(lhost: str, lport: int):
 
 @dataclass
 class HTTPServerParams:
-    _lhost: str
-    _lport: int
+    def __init__(self, lhost: str, lport: int):
+        self._lhost = lhost
+        self._lport = lport
 
     def get_host(self) -> str:
         return self._lhost

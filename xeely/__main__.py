@@ -1,8 +1,8 @@
 from xeely import __app_name__
 from xeely import __app_version__
 from xeely import __author__
-from xeely import cli
 from xeely import console
+from xeely.cli import app
 
 
 def print_banner():
@@ -26,7 +26,7 @@ by {__author__} v{__app_version__}
 
 
 def main():
-    cli.app(prog_name=__app_name__)
+    app(prog_name=__app_name__)
 
 
 if __name__ == "__main__":

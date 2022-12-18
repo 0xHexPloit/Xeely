@@ -6,8 +6,9 @@ from xeely.custom_xml.entity import XMLEntity
 
 @dataclass
 class XMLDoctype:
-    _root_name: str
-    _entities: Sequence[XMLEntity | str]
+    def __init__(self, root_name: str, entities: Sequence[XMLEntity | str]):
+        self._root_name = root_name
+        self._entities = entities
 
     def to_xml(self) -> str:
         output = f"<!DOCTYPE {self._root_name} [\n"
@@ -15,6 +16,6 @@ class XMLDoctype:
         for child in self._entities:
             output += f" {child if isinstance(child, str) else child.to_xml()}\n"
 
-        output += "]>\n"
+        output += "]>"
 
         return output
