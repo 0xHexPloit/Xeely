@@ -7,9 +7,5 @@ PLACE_HOLDER = "{{XXE}}"
 
 @payload_factory.register(name=XXEAttackMode.DIRECT.value)
 class DirectPayloadGenerator(AbstractPayloadGenerator):
-    @staticmethod
-    def get_place_holder():
-        return
-
     def generate_payload(self) -> str:
         return super().generate_payload().replace(PLACE_HOLDER, f"&{self.MALICIOUS_ENTITY_NAME};")
