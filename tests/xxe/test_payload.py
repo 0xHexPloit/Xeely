@@ -4,6 +4,7 @@ from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_xml import XML
 from xeely.xxe.attack.mode import XXEAttackMode
 from xeely.xxe.attack.payload import payload_factory
+from xeely.xxe.attack.payload.error import DTD_WRAPPER
 from xeely.xxe.attack.type import XXEAttackType
 
 
@@ -156,7 +157,7 @@ def test_error_based_dtd(base_xml):
 
     dtd = payload_generator.get_dtd_content()
 
-    assert "%nonExistingEntity;/%xxe;" in dtd
+    assert f"%nonExistingEntity;{DTD_WRAPPER}%xxe;{DTD_WRAPPER}" in dtd
 
 
 def test_oob_payload(base_xml):

