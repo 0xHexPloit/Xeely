@@ -3,7 +3,7 @@ from typing import Dict
 from typing import Type
 
 from xeely.xxe.attack.mode import XXEAttackMode
-from xeely.xxe.attack.payload.abstract_payload import AbstractPayloadGenerator
+from xeely.xxe.attack.payload.abstract import AbstractPayloadGenerator
 
 
 class XXEPayloadGeneratorFactory:
@@ -21,7 +21,7 @@ class XXEPayloadGeneratorFactory:
     def get_payload_generator_for_mode(
         self, mode: XXEAttackMode, **kwargs
     ) -> AbstractPayloadGenerator:
-        payload_class = self._attacks.get(str(mode))
+        payload_class = self._attacks.get(str(mode.value))
 
         if payload_class is None:
             raise ValueError(f"Invalid mode: {mode}")

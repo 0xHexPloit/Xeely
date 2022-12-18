@@ -1,5 +1,5 @@
 from xeely.xxe.attack.mode import XXEAttackMode
-from xeely.xxe.attack.payload.abstract_payload import AbstractPayloadGenerator
+from xeely.xxe.attack.payload.abstract import AbstractPayloadGenerator
 from xeely.xxe.attack.payload.factory import payload_factory
 
 

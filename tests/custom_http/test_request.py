@@ -6,7 +6,7 @@ from xeely.custom_http.errors import HTTPFieldMissingException
 from xeely.custom_http.errors import HTTPRequestParsingException
 from xeely.custom_http.request import HTTPRequest
 
-resources_path = Path("..").resolve() / "resources"
+resources_path = Path(__file__).parent.parent.resolve() / "resources"
 
 
 def test_parsing_valid_request_with_body_data():
@@ -16,9 +16,9 @@ def test_parsing_valid_request_with_body_data():
         request = HTTPRequest.parse_request(data)
 
         url = request.get_url()
-        body = request.body
+        body = request.get_body()
 
-        assert url == "http://127.0.0.1/api/hello"
+        assert url == "http://127.0.0.1:8000/api/hello"
         assert body == "BODY DATA"
 
 
@@ -28,7 +28,7 @@ def test_parsing_valid_request_with_empty_body():
     with open(valid_request_path) as file:
         data = file.read()
         request = HTTPRequest.parse_request(data)
-        body = request.body
+        body = request.get_body()
 
         assert body == ""
 
