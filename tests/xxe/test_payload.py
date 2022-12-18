@@ -186,3 +186,23 @@ def test_oob_dtd_content(base_xml):
     dtd = payload_generator.get_dtd_content()
 
     assert f"{server_params.get_base_url()}/?content=%xxe;" in dtd
+
+
+def test_exception_no_server_params_for_blind_strategy(base_xml):
+    with pytest.raises(Exception):
+        resource = "/etc/passwd"
+        payload_factory.get_payload_generator_for_mode(
+            XXEAttackMode.OOB, base_xml=base_xml, resource=resource, http_server_params=None
+        )
+
+
+def test_exception_no_server_params_but_use_cdata(base_xml):
+    with pytest.raises(Exception):
+        resource = "/etc/passwd"
+        payload_factory.get_payload_generator_for_mode(
+            XXEAttackMode.DIRECT,
+            base_xml=base_xml,
+            resource=resource,
+            should_use_cdata=True,
+            http_server_params=None,
+        )

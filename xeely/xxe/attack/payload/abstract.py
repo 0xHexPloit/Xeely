@@ -30,6 +30,9 @@ class AbstractPayloadGenerator(ABC):
         self._resource = resource
         self._http_server_params = http_server_params
 
+        if should_use_cdata and (http_server_params is None):
+            raise Exception("An HTTP server is required to use CDATA in the payload")
+
     def does_payload_requires_to_expose_dtd_file(self) -> bool:
         return self._should_use_cdata
 
@@ -121,6 +124,26 @@ class AbstractPayloadGenerator(ABC):
 
 
 class AbstractBlindPayloadGenerator(AbstractPayloadGenerator):
+    def __init__(
+        self,
+        base_xml: XML,
+        resource: str,
+        attack_type: XXEAttackType = XXEAttackType.FILE_DISCLOSURE,
+        should_apply_base64_encoding: bool = False,
+        should_use_cdata: bool = False,
+        http_server_params: Optional[HTTPServerParams] = None,
+    ):
+        super().__init__(
+            base_xml,
+            resource,
+            attack_type,
+            should_apply_base64_encoding,
+            should_use_cdata,
+            http_server_params,
+        )
+        if http_server_params is None:
+            raise Exception("A blind XXE attack requires to setup a HTTP server")
+
     def _is_payload_for_blind_mode_attack(self) -> bool:
         return True
 
