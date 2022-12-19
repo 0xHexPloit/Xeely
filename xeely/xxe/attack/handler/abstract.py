@@ -6,6 +6,7 @@ from typing import cast
 from typing import Optional
 from urllib.parse import quote_plus
 
+from xeely import console
 from xeely import RESOURCES_PATH
 from xeely.custom_http import HTTPClient
 from xeely.custom_http.response import HTTPResponse
@@ -78,6 +79,7 @@ class AbstractXXEAttackHandler(ABC):
             )
         )
 
+        console.print_info("Sending malicious payload to target machine")
         if payload_generator.does_payload_requires_to_expose_dtd_file():
             dtd_file_path = RESOURCES_PATH / payload_generator.get_dtd_file_name()
             with open(dtd_file_path, "w") as file:

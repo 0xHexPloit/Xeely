@@ -62,7 +62,13 @@ base64_option = typer.Option(
     help="Use PHP filter to base64 encode target data",
 )
 
-mode_option = typer.Option(XXEAttackMode.DIRECT, help="The mode to use to perform the attack.")
+mode_option = typer.Option(
+    XXEAttackMode.DIRECT.value,
+    "-m",
+    "--mode",
+    help="The mode to use to perform the attack.",
+    case_sensitive=False,
+)
 
 
 lport_option = typer.Option(
@@ -78,6 +84,7 @@ def get_lhost_option(is_required: bool = False):
 
 
 request_option = typer.Option(..., help="Path to the request file")
+
 
 urlencode_option = typer.Option(
     False, help="A boolean indicating if XML content is urlencoded in the body of the request."

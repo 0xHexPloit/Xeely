@@ -142,7 +142,7 @@ class AbstractBlindPayloadGenerator(AbstractPayloadGenerator):
             http_server_params,
         )
         if http_server_params is None:
-            raise Exception("A blind XXE attack requires to setup a HTTP server")
+            raise Exception("Missing some params to setup an HTTP server for blind XXE attack")
 
     def _is_payload_for_blind_mode_attack(self) -> bool:
         return True
