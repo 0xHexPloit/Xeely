@@ -3,6 +3,7 @@ import pytest
 from xeely.custom_xml.doctype import XMLDoctype
 from xeely.custom_xml.errors import NotTextElement
 from xeely.custom_xml.errors import XMLElementNotFound
+from xeely.custom_xml.xml import get_custom_xml_tag
 from xeely.custom_xml.xml import XML
 
 xml_content = """<root>
@@ -69,7 +70,7 @@ def test_serialization():
     xml_str = xml.to_xml()
 
     assert xml_content in xml_str
-    assert '<?xml version="1.0" encoding="UTF-8" ?>' in xml_str
+    assert get_custom_xml_tag() in xml_str
 
 
 def test_serialization_with_doctype():

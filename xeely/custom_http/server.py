@@ -54,7 +54,6 @@ def run_http_server(lhost: str, lport: int):
     error_detected = False
     try:
         httpd.server_bind()
-        print(httpd.server_port)
 
         httpd.server_activate()
         console.print_info(f"Running HTTP server on port: {lport}")

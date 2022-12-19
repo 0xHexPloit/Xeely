@@ -36,38 +36,49 @@ def get_attack_type_and_resource_from_options(
     elif rce is not None:
         return XXEAttackType.RCE, rce
     else:
-        raise typer.BadParameter("You forgot to specify the type of attack to perform")
+        raise typer.BadParameter("You forgot to specify the type of attack to perform.")
 
 
 file_option = typer.Option(
-    None, help="The path to the the file to exfiltrate", callback=exclusivity_callback
+    None, help="The path to the the file to exfiltrate.", callback=exclusivity_callback
 )
 
 dir_option = typer.Option(
-    None, help="The path the directory to list", callback=exclusivity_callback
+    None, help="The path the directory to list.", callback=exclusivity_callback
 )
 
 ssrf_option = typer.Option(
-    None, help="The URL that the target server should use", callback=exclusivity_callback
+    None, help="The URL that the target server should use.", callback=exclusivity_callback
 )
 
 rce_option = typer.Option(
-    None, help="The command to perform on the target server", callback=exclusivity_callback
+    None, help="The command to perform on the target server.", callback=exclusivity_callback
 )
 
-cdata_option = typer.Option(False, help="Use XML CDATA section to escape some characters")
+cdata_option = typer.Option(False, help="Use XML CDATA section to escape some characters.")
 
 base64_option = typer.Option(
     False,
     help="Use PHP filter to base64 encode target data",
 )
 
-mode_option = typer.Option(XXEAttackMode.DIRECT, help="The mode to use to perform the attack")
+mode_option = typer.Option(XXEAttackMode.DIRECT, help="The mode to use to perform the attack.")
 
-lhost_option = typer.Option(
-    "", help="The IP address to use to setup the HTTP server when dealing with blind attacks"
-)
 
 lport_option = typer.Option(
-    8000, help="The port to use to setup the HTTP server when dealing with blind attacks"
+    8000, help="The port to use to setup the HTTP server when dealing with blind attacks."
+)
+
+
+def get_lhost_option(is_required: bool = False):
+    return typer.Option(
+        ... if is_required else "",
+        help="The IP address to use to setup the HTTP server when dealing with blind attacks.",
+    )
+
+
+request_option = typer.Option(..., help="Path to the request file")
+
+urlencode_option = typer.Option(
+    False, help="A boolean indicating if XML content is urlencoded in the body of the request."
 )
