@@ -79,6 +79,9 @@ class XML:
         self._get_text_elements_value_rec(self._root_node, output)
         return [item for item in output if len(item.get_value().strip("\n ")) != 0]
 
+    def _get_custom_xml_tag(self):
+        return '<?xml version="1.0" encoding="UTF-8" ?>'
+
     def to_xml(self) -> str:
         output = f"{str(self._root_node.toxml()).replace('amp;', '')}"
         output_lines = output.split("\n")
@@ -89,6 +92,9 @@ class XML:
             remaining_content = output_lines[0][pos + 1 :]
             output_lines[0] = output_lines[0][: pos + 1]
             output_lines.insert(1, remaining_content)
+
+        # Replacing XML tag with custom one
+        output_lines[0] = self._get_custom_xml_tag()
 
         if self._doctype is not None:
             output_lines.insert(1, self._doctype.to_xml())

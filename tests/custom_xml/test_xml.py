@@ -69,7 +69,7 @@ def test_serialization():
     xml_str = xml.to_xml()
 
     assert xml_content in xml_str
-    assert '<?xml version="1.0" ?>' in xml_str
+    assert '<?xml version="1.0" encoding="UTF-8" ?>' in xml_str
 
 
 def test_serialization_with_doctype():

@@ -19,7 +19,6 @@ $$ /  $$ |\\$$$$$$$\\ \\$$$$$$$\\ $$ |\\$$$$$$$ |
                                   \\$$$$$$  |
                                    \\______/
 
-
 by {__author__} v{__app_version__}
     """
     print(banner)
@@ -32,6 +31,6 @@ def main():
 if __name__ == "__main__":
     try:
         print_banner()
-        # main()
+        main()
     except Exception as e:
         console.print_error(str(e))
