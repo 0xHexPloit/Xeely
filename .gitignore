@@ -2,5 +2,6 @@
 **/mypy_cache/
 **/pytest_cache/
 **/__pycache__/**
-.DS
+**/.DS_*
 xeely/test.py
+/venv/
