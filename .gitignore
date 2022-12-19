@@ -1,4 +1,6 @@
-./.idea
+**/.idea
 **/mypy_cache/
 **/pytest_cache/
 **/__pycache__/**
+.DS
+xeely/test.py

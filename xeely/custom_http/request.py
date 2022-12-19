@@ -17,7 +17,7 @@ class HTTPRequest:
     _headers: Headers
     _body: str
     _protocol: str = "HTTP"
-    _port: int = 8000
+    _port: int = 80
 
     def get_url(self) -> str:
         url = f"{self._protocol.lower()}://"

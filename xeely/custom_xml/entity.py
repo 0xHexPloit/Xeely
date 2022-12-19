@@ -1,12 +1,11 @@
-from dataclasses import dataclass
-
-
-@dataclass
 class XMLEntity:
-    _name: str
-    _value: str
-    _is_external: bool = False
-    _is_parameter: bool = False
+    def __init__(
+        self, name: str, value: str, is_external: bool = False, is_parameter: bool = False
+    ):
+        self._name = name
+        self._value = value
+        self._is_external = is_external
+        self._is_parameter = is_parameter
 
     def to_xml(self) -> str:
         output = "<!ENTITY"

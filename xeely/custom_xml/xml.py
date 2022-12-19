@@ -11,6 +11,10 @@ from xeely.custom_xml.errors import XMLElementNotFound
 from xeely.custom_xml.text_element import XMLTextElement
 
 
+def get_custom_xml_tag():
+    return '<?xml version="1.0" encoding="UTF-8" ?>'
+
+
 class XML:
     _doctype: Optional[XMLDoctype]
     _root_node: Document
@@ -90,6 +94,9 @@ class XML:
             output_lines[0] = output_lines[0][: pos + 1]
             output_lines.insert(1, remaining_content)
 
+        # Replacing XML tag with custom one
+        output_lines[0] = get_custom_xml_tag()
+
         if self._doctype is not None:
             output_lines.insert(1, self._doctype.to_xml())
 
@@ -105,10 +112,10 @@ class XML:
         self._doctype = doctype
 
     @staticmethod
-    def parse_string(xml: str) -> Optional["XML"]:
+    def parse_string(xml: str, allows_external_entities: bool = False) -> Optional["XML"]:
         # Parsing XML content
         parser = make_parser()
-        parser.setFeature(feature_external_ges, False)
+        parser.setFeature(feature_external_ges, allows_external_entities)
         xml_doc = parseString(xml, parser)
         xml_obj: Optional["XML"] = None
 
