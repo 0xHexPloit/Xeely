@@ -18,7 +18,7 @@ def test_parsing_valid_request_with_body_data():
         url = request.get_url()
         body = request.get_body()
 
-        assert url == "http://127.0.0.1:8000/api/hello"
+        assert url == "http://127.0.0.1:80/api/hello"
         assert body == "BODY DATA"
 
 

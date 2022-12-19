@@ -83,7 +83,7 @@ def get_lhost_option(is_required: bool = False):
     )
 
 
-request_option = typer.Option(..., help="Path to the request file")
+request_option = typer.Option(..., "-r", "--request", help="Path to the request file")
 
 
 urlencode_option = typer.Option(

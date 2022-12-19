@@ -1,6 +1,6 @@
 import base64
 from base64 import b64encode
-from urllib.parse import unquote_plus
+from urllib.parse import unquote
 
 import httpx
 import pytest
@@ -177,6 +177,9 @@ def test_failed_oob_attack_handler(httpserver: HTTPServer, base_xml):
     assert data == ""
 
 
+NAME = "Jean VALJEAN"
+
+
 def urlencoding_server_handler(request: Request):
     data = request.data.decode("utf-8")
 
@@ -184,21 +187,18 @@ def urlencoding_server_handler(request: Request):
         return Response("Bienvenue ")
 
     xml_encoded = data.split("=")[1]
-    xml = XML.parse_string(unquote_plus(xml_encoded))
+    xml_decoded = unquote(xml_encoded)
 
-    name = xml.get_text_element_value("name")
-
-    if name == "&xxe;":
+    if "&xxe;" in xml_decoded:
         name = "localhost"
+    elif NAME in xml_decoded:
+        name = NAME
 
     return Response(f"Bienvenue {name}")
 
 
 def test_url_encoding(httpserver: HTTPServer):
-    raw_xml = """
-<name>
-    Jean VALJEAN
-</name>
+    raw_xml = f"""<name>{NAME}</name>
     """
     xml = XML.parse_string(raw_xml)
 
@@ -207,7 +207,7 @@ def test_url_encoding(httpserver: HTTPServer):
     )
     attack_handler = attack_handler_factory.get_attack_handler_for_mode(
         mode=XXEAttackMode.DIRECT,
-        resource="/invalid",
+        resource="/etc/hosts",
         xml=xml,
         target_url=httpserver.url_for(PHP_FILE_ENDPOINT),
         http_server_params=HTTPServerParams(lhost="127.0.0.1", lport=8000),
@@ -215,4 +215,4 @@ def test_url_encoding(httpserver: HTTPServer):
     )
     data = attack_handler.run_attack()
 
-    assert data == ""
+    assert "localhost" in data

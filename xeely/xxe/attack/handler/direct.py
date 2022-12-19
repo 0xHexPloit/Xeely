@@ -56,7 +56,14 @@ class XXEDirectAttackHandler(AbstractXXEAttackHandler):
                 self._vulnerable_element = text_element
 
                 data_start_idx = http_response.body.find(text_element.get_value())
-                self._pre_data_content = http_response.body[:data_start_idx]
+
+                # Trying to find pre-content that is on
+                # the same line where the vulnerable entity
+                # is written to handle error messages problems
+                last_new_line_pos = http_response.body.rfind("\n")
+                last_new_line_pos = 0 if last_new_line_pos == -1 else last_new_line_pos + 1
+
+                self._pre_data_content = http_response.body[last_new_line_pos:data_start_idx]
                 self._post_data_content = http_response.body[
                     data_start_idx + len(text_element.get_value()) :
                 ].strip()

