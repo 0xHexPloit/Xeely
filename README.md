@@ -29,7 +29,7 @@ This project also comes with a Docker image of a vulnerable PHP website to try o
 ```
 git clone https://github.com/0xHexPloit/Xeely.git
 cd ./Xeely/vulnerable_website
-docker build -t xeely-xxe-website
+docker build -t xeely-xxe-website .
 docker run -d -p 80:80 xeely-xxe-website
 ```
 
