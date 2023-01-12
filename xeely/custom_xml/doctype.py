@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from typing import Sequence
-
+from typing import Union
 from xeely.custom_xml.entity import XMLEntity
 
 
 @dataclass
 class XMLDoctype:
-    def __init__(self, root_name: str, entities: Sequence[XMLEntity | str]):
+    def __init__(self, root_name: str, entities: Sequence[Union[XMLEntity, str]]):
         self._root_name = root_name
         self._entities = entities
 

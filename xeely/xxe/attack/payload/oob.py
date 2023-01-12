@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Union
 
 from xeely.custom_xml import XMLEntity
 from xeely.xxe.attack.mode import XXEAttackMode
@@ -17,7 +17,7 @@ class OOBPayloadGenerator(AbstractBlindPayloadGenerator):
     def get_dtd_file_name(self) -> str:
         return "oob.dtd"
 
-    def _get_payload_entities(self) -> Sequence[XMLEntity | str]:
+    def _get_payload_entities(self) -> Sequence[Union[XMLEntity,str]]:
         return [*self._get_base_payload_entities(), "%wrapper;"]
 
     def _modify_xml_content(self):
