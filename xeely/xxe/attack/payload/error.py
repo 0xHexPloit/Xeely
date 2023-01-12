@@ -1,4 +1,5 @@
-from typing import Sequence, Union
+from typing import Sequence
+from typing import Union
 
 from xeely.custom_xml import XMLEntity
 from xeely.xxe.attack.mode import XXEAttackMode
@@ -16,5 +17,5 @@ class ErrorBasedPayloadGenerator(AbstractBlindPayloadGenerator):
     def get_dtd_file_name(self) -> str:
         return "error.dtd"
 
-    def _get_payload_entities(self) -> Sequence[Union[XMLEntity,str]]:
+    def _get_payload_entities(self) -> Sequence[Union[XMLEntity, str]]:
         return [*self._get_base_payload_entities(), "%wrapper;"]

@@ -1,8 +1,9 @@
 from abc import ABC
 from abc import abstractmethod
-from typing import List, Union
+from typing import List
 from typing import Optional
 from typing import Sequence
+from typing import Union
 
 from xeely.custom_http.server import HTTPServerParams
 from xeely.custom_xml import XML
@@ -99,7 +100,7 @@ class AbstractPayloadGenerator(ABC):
         elif self._attack_type == XXEAttackType.SSRF:
             return self._resource
 
-    def _get_payload_entities(self) -> Sequence[Union[XMLEntity,str]]:
+    def _get_payload_entities(self) -> Sequence[Union[XMLEntity, str]]:
         return self._get_base_payload_entities()
 
     def _modify_xml_content(self):
