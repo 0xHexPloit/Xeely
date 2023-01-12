@@ -82,6 +82,10 @@ class AbstractXXEAttackHandler(ABC):
         console.print_info("Sending malicious payload to target machine")
         payload = payload_generator.generate_payload()
         if payload_generator.does_payload_requires_to_expose_dtd_file():
+            # Checking that the resources folder exists
+            if not RESOURCES_PATH.exists():
+                os.mkdir(RESOURCES_PATH)
+
             dtd_file_path = RESOURCES_PATH / payload_generator.get_dtd_file_name()
             with open(dtd_file_path, "w") as file:
                 file.write(payload_generator.get_dtd_content())
