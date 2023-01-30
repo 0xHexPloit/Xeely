@@ -172,6 +172,10 @@ def identify(
     # Updating the SSRF resource and writing the test file
     ssrf_file_name = "ssrf.txt"
     ssrf_file_path = RESOURCES_PATH / ssrf_file_name
+    
+    if not RESOURCES_PATH.exists():
+        os.mkdir(RESOURCES_PATH)
+    
     with open(ssrf_file_path, "w") as file_io:
         file_io.write(__app_name__)
 
@@ -238,3 +242,4 @@ def identify(
         console.print_warning("It seems that the target machine is not vulnerable to XXE attacks.")
 
     os.remove(ssrf_file_path)
+    os.rmdir(RESOURCES_PATH)
